@@ -274,3 +274,69 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 }
+
+
+
+// sample ya code in hii 
+//import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class FirestoreExample extends StatefulWidget {
+  @override
+  _FirestoreExampleState createState() => _FirestoreExampleState();
+}
+
+class _FirestoreExampleState extends State<FirestoreExample> {
+  // pakuzingatia ni hapa kwenye hii function ndio inajaza taarifa zako ila kwenye code zako haipo
+  // final TextEditingController nameController = TextEditingController();
+  // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Future<void> _addUser() async {
+  //   try {
+  //     if (nameController.text.isNotEmpty) {
+  //       await _firestore.collection('users').add({
+  //         'name': nameController.text,
+  //         'timestamp': FieldValue.serverTimestamp(), // Optional: Add a timestamp
+  //       });
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('User added successfully!')),
+  //       );
+  //       nameController.clear(); // Clear the text field after successful addition
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Please enter a name.')),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     print('Error adding user: $e');
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Failed to add user. Please try again.')),
+  //     );
+  //   }
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Firestore Example'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: <Widget>[
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(labelText: 'Enter Name'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _addUser,
+              child: Text('Add User'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
