@@ -288,13 +288,13 @@ class FirestoreExample extends StatefulWidget {
 
 class _FirestoreExampleState extends State<FirestoreExample> {
   // pakuzingatia ni hapa kwenye hii function ndio inajaza taarifa zako ila kwenye code zako haipo
-  // final TextEditingController nameController = TextEditingController();
-  // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // final TextEditingController nameController = TextEditingController(); hii ni inachukua kilichoandikwa
+  // final FirebaseFirestore _firestore = FirebaseFirestore.instance; hapa unaitambulisha firestore ambapo kwako haipo
 
-  // Future<void> _addUser() async {
+  // Future<void> _addUser() async { hii function ndio utaivuta ukibonyeza add user button
   //   try {
   //     if (nameController.text.isNotEmpty) {
-  //       await _firestore.collection('users').add({
+  //       await _firestore.collection('users').add({ collection user itajitengeneza automatic
   //         'name': nameController.text,
   //         'timestamp': FieldValue.serverTimestamp(), // Optional: Add a timestamp
   //       });
@@ -313,7 +313,7 @@ class _FirestoreExampleState extends State<FirestoreExample> {
   //       SnackBar(content: Text('Failed to add user. Please try again.')),
   //     );
   //   }
-  // }
+  // } izo juu ni condition tu za kawaida
 
   @override
   Widget build(BuildContext context) {
@@ -331,6 +331,7 @@ class _FirestoreExampleState extends State<FirestoreExample> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
+              // hii ya chini ndio itafanya kazi ya function ya juu pale itatunza data zako chapuu kama hujaelewa karibu niivunje izo code zako 
               onPressed: _addUser,
               child: Text('Add User'),
             ),
