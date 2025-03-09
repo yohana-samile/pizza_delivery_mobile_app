@@ -68,9 +68,4 @@ class FirebaseUserRepo implements UserRepository {
       rethrow;
     }
   }
-
-  
-
-  
-  
 }

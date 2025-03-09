@@ -1,9 +1,12 @@
+import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_repository/user_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../components/my_text_field.dart';
 import '../blocs/sign_up_bloc/sign_up_bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -17,15 +20,56 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final emailController = TextEditingController();
   final nameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
   IconData iconPassword = CupertinoIcons.eye_fill;
   bool obscurePassword = true;
   bool signUpRequired = false;
-
   bool containsUpperCase = false;
   bool containsLowerCase = false;
   bool containsNumber = false;
   bool containsSpecialChar = false;
   bool contains8Length = false;
+
+  Future<void> _signUp() async {
+    try{
+      if (nameController.text.isNotEmpty && emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
+        UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+          email: emailController.text,
+          password: passwordController.text,
+        );
+
+        /*
+          return userCredential; for direct authentication
+        */
+        await _firestore.collection('users').add({
+              'name': nameController.text,
+              'email': emailController.text,
+              'hasActiveCart': true,
+              'timestamp': FieldValue.serverTimestamp(),
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User added successfully!')),
+        );
+        nameController.clear();
+        emailController.clear();
+        passwordController.clear();
+      }
+      else {
+        /* if (userCredential.user == null) { */
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please enter valid details')),
+        );
+      }
+    }
+    on FirebaseException catch(e){
+      log('Failed to add user. Please try again.: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add user. Please try again.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -233,15 +277,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         MyUser myUser = MyUser.empty;
                         myUser.email = emailController.text;
                         myUser.name = nameController.text;
-
-                        setState(() {
-                          context.read<SignUpBloc>().add(
-                              SignUpRequired(
-                                  myUser,
-                                  passwordController.text
-                              )
-                          );
-                        });
+                        _signUp();
                       }
                     },
                     style: TextButton.styleFrom(
@@ -269,73 +305,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   : const CircularProgressIndicator()
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-
-
-// sample ya code in hii 
-//import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-class FirestoreExample extends StatefulWidget {
-  @override
-  _FirestoreExampleState createState() => _FirestoreExampleState();
-}
-
-class _FirestoreExampleState extends State<FirestoreExample> {
-  // pakuzingatia ni hapa kwenye hii function ndio inajaza taarifa zako ila kwenye code zako haipo
-  // final TextEditingController nameController = TextEditingController(); hii ni inachukua kilichoandikwa
-  // final FirebaseFirestore _firestore = FirebaseFirestore.instance; hapa unaitambulisha firestore ambapo kwako haipo
-
-  // Future<void> _addUser() async { hii function ndio utaivuta ukibonyeza add user button
-  //   try {
-  //     if (nameController.text.isNotEmpty) {
-  //       await _firestore.collection('users').add({ collection user itajitengeneza automatic
-  //         'name': nameController.text,
-  //         'timestamp': FieldValue.serverTimestamp(), // Optional: Add a timestamp
-  //       });
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('User added successfully!')),
-  //       );
-  //       nameController.clear(); // Clear the text field after successful addition
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('Please enter a name.')),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     print('Error adding user: $e');
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Failed to add user. Please try again.')),
-  //     );
-  //   }
-  // } izo juu ni condition tu za kawaida
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Firestore Example'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: 'Enter Name'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              // hii ya chini ndio itafanya kazi ya function ya juu pale itatunza data zako chapuu kama hujaelewa karibu niivunje izo code zako 
-              onPressed: _addUser,
-              child: Text('Add User'),
-            ),
-          ],
         ),
       ),
     );
