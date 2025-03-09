@@ -34,7 +34,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Future<void> _signUp() async {
     try{
-      if (nameController.text.isNotEmpty && emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
+      String email = emailController.text.trim();
+      String password = passwordController.text.trim();
+      String name = nameController.text.trim();
+      if (name.isNotEmpty && email.isNotEmpty && password.isNotEmpty) {
         UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
           email: emailController.text,
           password: passwordController.text,
@@ -43,25 +46,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
         /*
           return userCredential; for direct authentication
         */
-        await _firestore.collection('users').add({
-              'name': nameController.text,
-              'email': emailController.text,
-              'hasActiveCart': true,
-              'timestamp': FieldValue.serverTimestamp(),
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User added successfully!')),
-        );
-        nameController.clear();
-        emailController.clear();
-        passwordController.clear();
+        if (userCredential.user != null) {
+          await _firestore.collection('users').doc(userCredential.user!.uid).set({
+            'name': nameController.text,
+                'email': emailController.text,
+                'hasActiveCart': true,
+                'timestamp': FieldValue.serverTimestamp(),
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('User added successfully!')),
+          );
+          nameController.clear();
+          emailController.clear();
+          passwordController.clear();
+        }
+        else {
+          /* if (userCredential.user == null) { */
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter valid details')),
+          );
+        }
       }
-      else {
-        /* if (userCredential.user == null) { */
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please enter valid details')),
-        );
-      }
+    }
+    on FirebaseAuthException catch (e) {
+      log('Firebase Authentication Error: ${e.message}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Authentication failed: ${e.message}')),
+      );
     }
     on FirebaseException catch(e){
       log('Failed to add user. Please try again.: $e');
@@ -277,6 +288,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         MyUser myUser = MyUser.empty;
                         myUser.email = emailController.text;
                         myUser.name = nameController.text;
+
                         _signUp();
                       }
                     },
